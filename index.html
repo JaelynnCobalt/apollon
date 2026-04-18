@@ -6,31 +6,39 @@
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <!-- LOADING SCREEN -->
+
+  <!-- LOADING -->
   <div id="loading-screen">
     <img src="assets/sunsprite.png" alt="Loading">
   </div>
 
-  <!-- APP WRAPPER -->
+  <!-- APP -->
   <div id="app" class="hidden">
-    <!-- BACKGROUND -->
+
+    <!-- BG -->
     <div id="background"></div>
 
     <!-- SPRITES -->
-    <img id="apolloSprite" class="sprite left" src="assets/apollo.png" alt="Apollo">
-    <img id="cassandraSprite" class="sprite right" src="assets/cassandra.png" alt="Cassandra">
+    <div id="spriteLayer">
+      <img id="apolloSprite" class="sprite left" src="assets/apollo.png">
+      <img id="cassandraSprite" class="sprite right" src="assets/cassandra.png">
+    </div>
 
     <!-- UI -->
     <div id="ui">
       <div id="dialogueBox">
         <div id="speakerName"></div>
         <div id="dialogueText"></div>
-        <div id="choices"></div>
-      </div>
 
-      <!-- SUN BUTTON (NEXT) -->
-      <img id="nextSun" src="assets/sunsprite.png" alt="Next">
+        <div id="bottomBar">
+          <div id="choices"></div>
+
+          <!-- NEXT BUTTON NOW EMBEDDED -->
+          <img id="nextSun" src="assets/sunsprite.png" alt="Next">
+        </div>
+      </div>
     </div>
+
   </div>
 
   <script src="script.js"></script>
