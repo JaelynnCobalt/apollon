@@ -1,5 +1,4 @@
 /* RESET */
-
 * {
   margin: 0;
   padding: 0;
@@ -14,142 +13,166 @@ html, body {
   background: black;
 }
 
-/* APP VISIBILITY */
-
+/* VISIBILITY */
 .hidden {
   display: none;
 }
 
 /* BACKGROUND */
-
 #background {
   position: fixed;
   inset: 0;
   background-size: cover;
   background-position: center;
+  filter: brightness(0.75);
   z-index: 1;
 }
 
-/* SPRITES */
-
-.sprite {
-    position: absolute;
-    bottom: 120px; /* Lifts sprites UP so they don't cover the sun */
-    width: 28%;    /* Smaller so they don't overlap the UI */
-    opacity: 0;
-    transition: opacity 0.4s ease, filter 0.3s ease;
-    z-index: 2;
+/* SPRITE LAYER */
+#spriteLayer {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
 }
 
-.sprite.left { left: 3%; }
-.sprite.right { right: 3%; }
+.sprite {
+  position: absolute;
+  bottom: 140px;
+  width: 26%;
+  opacity: 0;
+  transition: all 0.4s ease;
+}
+
+.sprite.left { left: 5%; }
+.sprite.right { right: 5%; }
 
 .sprite.active {
-    opacity: 1;
-    filter: drop-shadow(0 0 12px gold);
+  opacity: 1;
+  transform: translateY(0);
+  filter: drop-shadow(0 0 18px gold);
 }
 
 .sprite.inactive {
-    opacity: 0.25;
-    filter: grayscale(40%);
+  opacity: 0.2;
+  transform: translateY(10px);
+  filter: grayscale(50%);
 }
 
-/* Apollo mood states */
-.sprite.soft { filter: drop-shadow(0 0 12px gold); }
-.sprite.irritated { filter: drop-shadow(0 0 18px orange); }
-.sprite.snap { filter: drop-shadow(0 0 25px white); }
+/* MOODS */
+.sprite.soft { filter: drop-shadow(0 0 15px gold); }
+.sprite.irritated { filter: drop-shadow(0 0 20px orange); }
+.sprite.snap { filter: drop-shadow(0 0 30px white); }
 
-
-/* UI */
-
+/* UI ROOT */
 #ui {
   position: absolute;
   bottom: 0;
   width: 100%;
-  padding-bottom: 80px; /* space for sun */
-  z-index: 4;
+  z-index: 5;
+  display: flex;
+  justify-content: center;
 }
 
 /* DIALOGUE BOX */
-
 #dialogueBox {
-  width: 95%;
-  margin: 0 auto;
-  padding: 20px;
-  background: rgba(255, 255, 255, 0.85);
+  width: min(1100px, 95%);
+  margin-bottom: 25px;
+  padding: 22px 24px 16px;
+
+  background: rgba(255, 255, 255, 0.92);
   border: 3px solid gold;
-  border-radius: 0 12px 12px 12px;
-  backdrop-filter: blur(6px);
-  box-shadow: 0 0 20px rgba(255, 215, 0, 0.4);
-  position: relative;
-  z-index: 4;
+  border-radius: 14px;
+
+  backdrop-filter: blur(8px);
+  box-shadow: 0 10px 40px rgba(0,0,0,0.6);
+
+  display: flex;
+  flex-direction: column;
 }
 
+/* TEXT */
 #speakerName {
   font-weight: bold;
-  font-size: 1.3rem;
-  margin-bottom: 8px;
+  font-size: 1.2rem;
+  margin-bottom: 6px;
   color: #5a3a00;
 }
 
 #dialogueText {
   font-size: 1.15rem;
-  line-height: 1.5rem;
-  min-height: 70px;
+  line-height: 1.6;
+  min-height: 80px;
+}
+
+/* BOTTOM BAR */
+#bottomBar {
+  margin-top: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
 }
 
 /* CHOICES */
-
 #choices {
-  margin-top: 15px;
-  text-align: center;
+  flex: 1;
 }
 
 .choice-btn {
   display: block;
-  width: 80%;
-  margin: 8px auto;
-  padding: 12px;
+  width: 95%;
+  margin: 6px 0;
+  padding: 10px;
+
   background: white;
   border: 2px solid gold;
   border-radius: 8px;
-  font-size: 1.1rem;
+
+  font-size: 1rem;
   cursor: pointer;
-  transition: background 0.2s ease, transform 0.1s ease;
+
+  transition: all 0.15s ease;
 }
 
 .choice-btn:hover {
-  background: #fff7d1;
-  transform: scale(1.02);
+  background: #fff3b0;
+  transform: translateX(4px);
 }
 
-/* SUN BUTTON */
-
+/* NEXT BUTTON */
 #nextSun {
-  position: absolute;
-  bottom: 15px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 48px;
-  height: 48px;
-  z-index: 9999;
+  width: 44px;
+  height: 44px;
+  margin-left: 10px;
   cursor: pointer;
+
+  transition: transform 0.2s ease, filter 0.2s ease;
   filter: drop-shadow(0 0 6px gold);
 }
 
-/* LOADING SCREEN */
+#nextSun:hover {
+  transform: scale(1.1) rotate(8deg);
+}
 
+/* LOADING */
 #loading-screen {
   position: fixed;
   inset: 0;
   background: black;
   z-index: 99999;
+
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
 #loading-screen img {
-  width: 120px;
-  height: 120px;
+  width: 100px;
+  animation: pulse 1.5s infinite ease-in-out;
+}
+
+@keyframes pulse {
+  0% { transform: scale(0.9); opacity: 0.7; }
+  50% { transform: scale(1.1); opacity: 1; }
+  100% { transform: scale(0.9); opacity: 0.7; }
 }
