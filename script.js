@@ -9,13 +9,6 @@ const textEl = document.getElementById("dialogueText");
 const choicesEl = document.getElementById("choices");
 const nextBtn = document.getElementById("nextSun");
 
-/* ========= STATE ========= */
-
-let node = "start";
-let lineIndex = 0;
-let typing = false;
-let fullText = "";
-
 /* ========= ASSETS ========= */
 
 const backgrounds = {
@@ -28,7 +21,7 @@ const sprites = {
   cassandra: "assets/cassandra.png"
 };
 
-/* ========= STORY (SHORT VERSION TO START) ========= */
+/* ========= STORY ========= */
 
 const story = {
   start: {
@@ -61,83 +54,111 @@ const story = {
   }
 };
 
+/* ========= STATE ========= */
+
+let currentNode = "start";
+let currentLine = 0;
+let typing = false;
+let fullText = "";
+let typingTimeout = null;
+
 /* ========= FUNCTIONS ========= */
 
-function setBG(key) {
-  if (!backgrounds[key]) return;
-  bg.style.backgroundImage = `url(${backgrounds[key]})`;
+function setBackground(key) {
+  if (!key || !backgrounds[key]) return;
+  bg.style.backgroundImage = `url("${backgrounds[key]}")`;
 }
 
-function setSprite(char) {
+function setSprites(active) {
+  // ALWAYS ensure src is set
   cassandra.src = sprites.cassandra;
   apollo.src = sprites.apollo;
 
-  cassandra.classList.remove("active", "inactive");
-  apollo.classList.remove("active", "inactive");
+  cassandra.className = "sprite";
+  apollo.className = "sprite";
 
-  if (char === "cassandra") {
+  if (active === "cassandra") {
     cassandra.classList.add("active");
     apollo.classList.add("inactive");
-  } else if (char === "apollo") {
+  } else if (active === "apollo") {
     apollo.classList.add("active");
     cassandra.classList.add("inactive");
+  } else {
+    cassandra.classList.add("inactive");
+    apollo.classList.add("inactive");
   }
 }
 
-function type(text) {
+function typeText(text) {
+  clearTimeout(typingTimeout);
   typing = true;
   fullText = text;
   textEl.textContent = "";
 
   let i = 0;
+
   function tick() {
     if (i < text.length) {
       textEl.textContent += text[i++];
-      setTimeout(tick, 25);
+      typingTimeout = setTimeout(tick, 25);
     } else {
       typing = false;
     }
   }
+
   tick();
 }
 
 function showLine() {
-  const line = story[node].lines[lineIndex];
-  if (!line) return showChoices();
+  const node = story[currentNode];
+  const line = node.lines[currentLine];
+
+  if (!line) {
+    showChoices();
+    return;
+  }
 
   nameEl.textContent = line.speaker || "";
-  setBG(line.bg);
-  setSprite(line.sprite);
-  type(line.text);
+  setBackground(line.bg);
+  setSprites(line.sprite);
+  typeText(line.text);
 }
 
 function showChoices() {
   choicesEl.innerHTML = "";
   nextBtn.style.display = "none";
 
-  story[node].choices.forEach(c => {
+  const node = story[currentNode];
+
+  if (!node.choices) return;
+
+  node.choices.forEach(choice => {
     const btn = document.createElement("button");
     btn.className = "choice-btn";
-    btn.textContent = c.text;
+    btn.textContent = choice.text;
+
     btn.onclick = () => {
-      node = c.next;
-      lineIndex = 0;
+      currentNode = choice.next;
+      currentLine = 0;
       nextBtn.style.display = "block";
       showLine();
     };
+
     choicesEl.appendChild(btn);
   });
 }
 
-function next() {
+function nextLine() {
   if (typing) {
+    clearTimeout(typingTimeout);
     textEl.textContent = fullText;
     typing = false;
     return;
   }
 
-  lineIndex++;
-  if (lineIndex >= story[node].lines.length) {
+  currentLine++;
+
+  if (currentLine >= story[currentNode].lines.length) {
     showChoices();
   } else {
     showLine();
@@ -146,18 +167,26 @@ function next() {
 
 /* ========= EVENTS ========= */
 
-nextBtn.onclick = next;
+nextBtn.addEventListener("click", nextLine);
 
-document.addEventListener("keydown", e => {
-  if (e.code === "Space" || e.code === "Enter") next();
+document.addEventListener("keydown", (e) => {
+  if (e.code === "Space" || e.code === "Enter") {
+    e.preventDefault();
+    nextLine();
+  }
 });
 
 /* ========= START ========= */
 
-window.onload = () => {
+window.addEventListener("load", () => {
+  // preload images so nothing is blank
+  cassandra.src = sprites.cassandra;
+  apollo.src = sprites.apollo;
+
   setTimeout(() => {
     document.getElementById("loading-screen").style.display = "none";
     document.getElementById("app").classList.remove("hidden");
-    showLine();
-  }, 800);
-};
+
+    showLine(); // 🔥 guarantees first render
+  }, 500);
+});
