@@ -1,7 +1,6 @@
 import { story } from "./story.js";
 
-/* ================= ELEMENTS ================= */
-
+/* ELEMENTS */
 const bg = document.getElementById("background");
 const cassandra = document.getElementById("cassandraSprite");
 const apollo = document.getElementById("apolloSprite");
@@ -11,8 +10,7 @@ const textEl = document.getElementById("dialogueText");
 const choicesEl = document.getElementById("choices");
 const nextBtn = document.getElementById("nextSun");
 
-/* ================= ASSETS ================= */
-
+/* ASSETS */
 const backgrounds = {
   temple: "assets/temple-bg.jpg",
   marble: "assets/marble-bg.jpg"
@@ -23,8 +21,7 @@ const sprites = {
   cassandra: "assets/cassandra.png"
 };
 
-/* ================= STATE ================= */
-
+/* STATE */
 const state = {
   node: "start",
   line: 0,
@@ -32,16 +29,14 @@ const state = {
   skip: false
 };
 
-/* ================= UI RESET ================= */
-
+/* RESET UI */
 function resetUI() {
   choicesEl.innerHTML = "";
   choicesEl.style.display = "none";
   nextBtn.style.display = "block";
 }
 
-/* ================= RENDER ================= */
-
+/* RENDER */
 function render() {
   const node = story[state.node];
 
@@ -54,7 +49,10 @@ function render() {
 
   resetUI();
 
-  if (!line) return renderChoices();
+  if (!line) {
+    renderChoices();
+    return;
+  }
 
   nameEl.textContent = line.speaker || "";
   setBackground(line.bg);
@@ -62,8 +60,7 @@ function render() {
   type(line.text);
 }
 
-/* ================= TYPE ================= */
-
+/* TYPEWRITER */
 function type(text) {
   state.typing = true;
   textEl.textContent = "";
@@ -89,8 +86,7 @@ function type(text) {
   tick();
 }
 
-/* ================= SPRITES ================= */
-
+/* SPRITES */
 function setSprites(active) {
   cassandra.src = sprites.cassandra;
   apollo.src = sprites.apollo;
@@ -110,17 +106,14 @@ function setSprites(active) {
   }
 }
 
-/* ================= BACKGROUND ================= */
-
+/* BACKGROUND */
 function setBackground(key) {
-  if (!key) return;
   bg.style.backgroundImage = backgrounds[key]
     ? `url("${backgrounds[key]}")`
     : "";
 }
 
-/* ================= NEXT ================= */
-
+/* NEXT */
 function next() {
   if (state.typing) {
     state.skip = true;
@@ -138,8 +131,7 @@ function next() {
   }
 }
 
-/* ================= CHOICES ================= */
-
+/* CHOICES */
 function renderChoices() {
   const node = story[state.node];
 
@@ -147,7 +139,7 @@ function renderChoices() {
   choicesEl.style.display = "flex";
   nextBtn.style.display = "none";
 
-  node.choices.forEach(choice => {
+  node.choices?.forEach(choice => {
     const btn = document.createElement("button");
     btn.className = "choice-btn";
     btn.textContent = choice.text;
@@ -163,8 +155,7 @@ function renderChoices() {
   });
 }
 
-/* ================= INPUT ================= */
-
+/* INPUT */
 nextBtn.addEventListener("click", next);
 
 document.addEventListener("keydown", e => {
@@ -174,16 +165,14 @@ document.addEventListener("keydown", e => {
   }
 });
 
-/* ================= START ================= */
-
+/* START */
 window.addEventListener("load", () => {
   cassandra.src = sprites.cassandra;
   apollo.src = sprites.apollo;
 
-  setTimeout(() => {
-    document.getElementById("loading-screen").style.display = "none";
-    document.getElementById("app").classList.remove("hidden");
-    resetUI();
-    render();
-  }, 300);
+  document.getElementById("loading-screen").style.display = "none";
+  document.getElementById("app").classList.remove("hidden");
+
+  resetUI();
+  render();
 });
