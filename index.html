@@ -7,37 +7,36 @@
 </head>
 <body>
 
-  <!-- LOADING -->
-  <div id="loading-screen">
-    <img src="assets/sunsprite.png">
+<div id="loading-screen">
+  <img src="assets/sunsprite.png">
+</div>
+
+<div id="app" class="hidden">
+
+  <div id="background"></div>
+
+  <div id="spriteLayer">
+    <img id="cassandraSprite" class="sprite">
+    <img id="apolloSprite" class="sprite">
   </div>
 
-  <!-- APP -->
-  <div id="app" class="hidden">
+  <div id="ui">
+    <div id="dialogueBox">
 
-    <div id="background"></div>
+      <div id="speakerName"></div>
+      <div id="dialogueText"></div>
 
-    <div id="spriteLayer">
-      <img id="cassandraSprite" class="sprite">
-      <img id="apolloSprite" class="sprite">
-    </div>
-
-    <div id="ui">
-      <div id="dialogueBox">
-        <div id="speakerName"></div>
-        <div id="dialogueText"></div>
-
-        <div id="bottomBar">
-          <div id="choices"></div>
-          <img id="nextSun" src="assets/sunsprite.png">
-        </div>
+      <div id="bottomBar">
+        <div id="choices"></div>
+        <img id="nextSun" src="assets/sunsprite.png">
       </div>
-    </div>
 
+    </div>
   </div>
 
-  <!-- 🔥 IMPORTANT: module setup -->
-  <script type="module" src="script.js"></script>
+</div>
+
+<script type="module" src="script.js"></script>
 
 </body>
 </html>
