@@ -1,6 +1,3 @@
-import { story } from "./story.js";
-
-/* ELEMENTS */
 const bg = document.getElementById("background");
 const cassandra = document.getElementById("cassandraSprite");
 const apollo = document.getElementById("apolloSprite");
@@ -8,9 +5,8 @@ const apollo = document.getElementById("apolloSprite");
 const nameEl = document.getElementById("speakerName");
 const textEl = document.getElementById("dialogueText");
 const choicesEl = document.getElementById("choices");
-const nextBtn = document.getElementById("nextSun");
+const nextBtn = document.getElementById("nextBtn");
 
-/* ASSETS */
 const backgrounds = {
   temple: "assets/temple-bg.jpg",
   marble: "assets/marble-bg.jpg"
@@ -21,72 +17,37 @@ const sprites = {
   cassandra: "assets/cassandra.png"
 };
 
-/* STATE */
-const state = {
-  node: "start",
-  line: 0,
-  typing: false,
-  skip: false
-};
+let node = "start";
+let line = 0;
+let typing = false;
+let skip = false;
 
-/* RESET UI */
+function render() {
+  const scene = story[node];
+  const data = scene.lines[line];
+
+  if (!data) return showChoices();
+
+  resetUI();
+
+  nameEl.textContent = data.speaker || "";
+  setBG(data.bg);
+  setSprites(data.sprite);
+  typeText(data.text);
+}
+
 function resetUI() {
   choicesEl.innerHTML = "";
   choicesEl.style.display = "none";
   nextBtn.style.display = "block";
 }
 
-/* RENDER */
-function render() {
-  const node = story[state.node];
-
-  if (!node) {
-    console.error("Missing node:", state.node);
-    return;
-  }
-
-  const line = node.lines[state.line];
-
-  resetUI();
-
-  if (!line) {
-    renderChoices();
-    return;
-  }
-
-  nameEl.textContent = line.speaker || "";
-  setBackground(line.bg);
-  setSprites(line.sprite);
-  type(line.text);
+function setBG(key) {
+  bg.style.backgroundImage = backgrounds[key]
+    ? `url("${backgrounds[key]}")`
+    : "";
 }
 
-/* TYPEWRITER */
-function type(text) {
-  state.typing = true;
-  textEl.textContent = "";
-
-  let i = 0;
-
-  function tick() {
-    if (state.skip) {
-      textEl.textContent = text;
-      state.typing = false;
-      state.skip = false;
-      return;
-    }
-
-    if (i < text.length) {
-      textEl.textContent += text[i++];
-      setTimeout(tick, 15);
-    } else {
-      state.typing = false;
-    }
-  }
-
-  tick();
-}
-
-/* SPRITES */
 function setSprites(active) {
   cassandra.src = sprites.cassandra;
   apollo.src = sprites.apollo;
@@ -100,79 +61,72 @@ function setSprites(active) {
   } else if (active === "apollo") {
     apollo.classList.add("active");
     cassandra.classList.add("inactive");
-  } else {
-    cassandra.classList.add("inactive");
-    apollo.classList.add("inactive");
   }
 }
 
-/* BACKGROUND */
-function setBackground(key) {
-  bg.style.backgroundImage = backgrounds[key]
-    ? `url("${backgrounds[key]}")`
-    : "";
+function typeText(text) {
+  typing = true;
+  textEl.textContent = "";
+  let i = 0;
+
+  function tick() {
+    if (skip) {
+      textEl.textContent = text;
+      typing = false;
+      skip = false;
+      return;
+    }
+
+    if (i < text.length) {
+      textEl.textContent += text[i++];
+      setTimeout(tick, 15);
+    } else {
+      typing = false;
+    }
+  }
+
+  tick();
 }
 
-/* NEXT */
 function next() {
-  if (state.typing) {
-    state.skip = true;
-    return;
-  }
+  if (typing) return skip = true;
 
-  state.line++;
-
-  const node = story[state.node];
-
-  if (state.line >= node.lines.length) {
-    renderChoices();
+  line++;
+  if (line >= story[node].lines.length) {
+    showChoices();
   } else {
     render();
   }
 }
 
-/* CHOICES */
-function renderChoices() {
-  const node = story[state.node];
+function showChoices() {
+  const scene = story[node];
 
-  choicesEl.innerHTML = "";
   choicesEl.style.display = "flex";
   nextBtn.style.display = "none";
 
-  node.choices?.forEach(choice => {
-    const btn = document.createElement("button");
-    btn.className = "choice-btn";
-    btn.textContent = choice.text;
+  scene.choices.forEach(c => {
+    const b = document.createElement("button");
+    b.className = "choice-btn";
+    b.textContent = c.text;
 
-    btn.onclick = () => {
-      state.node = choice.next;
-      state.line = 0;
-      state.skip = false;
+    b.onclick = () => {
+      node = c.next;
+      line = 0;
       render();
     };
 
-    choicesEl.appendChild(btn);
+    choicesEl.appendChild(b);
   });
 }
 
-/* INPUT */
-nextBtn.addEventListener("click", next);
-
+nextBtn.onclick = next;
 document.addEventListener("keydown", e => {
-  if (e.code === "Space" || e.code === "Enter") {
-    e.preventDefault();
-    next();
-  }
+  if (e.code === "Space" || e.code === "Enter") next();
 });
 
-/* START */
-window.addEventListener("load", () => {
-  cassandra.src = sprites.cassandra;
-  apollo.src = sprites.apollo;
-
+window.onload = () => {
   document.getElementById("loading-screen").style.display = "none";
   document.getElementById("app").classList.remove("hidden");
-
-  resetUI();
   render();
-});
+};
