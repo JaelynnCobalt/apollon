@@ -3,43 +3,43 @@ export const story = {
     lines: [
       {
         speaker: "Apollo",
-        text: "Welcome, Cassandra. Even the sun pauses to watch you enter my temple.",
+        text: "Welcome, Cassandra. The sun watches you enter.",
         sprite: "apollo",
         bg: "temple"
       },
       {
         speaker: "Cassandra",
-        text: "Cool. Does the sun also watch me trip on the stairs?",
+        text: "Cool. Is that normal or alarming?",
         sprite: "cassandra"
       }
     ],
     choices: [
-      { text: "Stay flippant", next: "flippant1" },
-      { text: "Ask why you're here", next: "ask1" }
+      { text: "Be sarcastic", next: "sarcastic" },
+      { text: "Ask why you're here", next: "ask" }
     ]
   },
 
-  flippant1: {
+  sarcastic: {
     lines: [
       {
         speaker: "Cassandra",
-        text: "So, chosen one or about to die?",
+        text: "So… divine kidnapping or social visit?",
         sprite: "cassandra"
       }
     ],
     choices: []
   },
 
-  ask1: {
+  ask: {
     lines: [
       {
         speaker: "Cassandra",
-        text: "Why did you summon me?",
+        text: "Why me?",
         sprite: "cassandra"
       },
       {
         speaker: "Apollo",
-        text: "Because you see what others refuse to look at.",
+        text: "Because you see too much.",
         sprite: "apollo"
       }
     ],
