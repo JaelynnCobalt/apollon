@@ -1,1 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Apollo & Cassandra — Interactive Story</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <!-- LOADING SCREEN -->
+    <div id="loading-screen">
+        <div class="loader-container">
+            <img src="assets/sun-loader.svg" class="loader-icon" alt="Loading...">
+            <p class="loader-text">Entering Apollo’s Temple…</p>
+        </div>
+    </div>
+
+    <!-- MAIN APP -->
+    <div id="app" class="hidden">
+
+        <!-- BACKGROUND -->
+        <div id="background"></div>
+
+        <!-- SPRITES -->
+        <img id="apolloSprite" class="sprite left hidden" src="assets/apollo.png" alt="Apollo">
+        <img id="cassandraSprite" class="sprite right hidden" src="assets/cassandra.png" alt="Cassandra">
+
+        <!-- UI CONTAINER -->
+        <div id="ui">
+
+            <div id="nameplate">
+                <span id="speakerName"></span>
+            </div>
+
+            <div id="dialogueBox">
+                <p id="dialogueText"></p>
+            </div>
+
+            <div id="choices"></div>
+
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
 
