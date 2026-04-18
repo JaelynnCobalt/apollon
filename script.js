@@ -1,8 +1,6 @@
 import { story } from "./story.js";
 
-/* =========================
-   ELEMENTS
-========================= */
+/* ================= ELEMENTS ================= */
 
 const bg = document.getElementById("background");
 const cassandra = document.getElementById("cassandraSprite");
@@ -13,9 +11,7 @@ const textEl = document.getElementById("dialogueText");
 const choicesEl = document.getElementById("choices");
 const nextBtn = document.getElementById("nextSun");
 
-/* =========================
-   ASSETS
-========================= */
+/* ================= ASSETS ================= */
 
 const backgrounds = {
   temple: "assets/temple-bg.jpg",
@@ -27,21 +23,16 @@ const sprites = {
   cassandra: "assets/cassandra.png"
 };
 
-/* =========================
-   STATE (SINGLE SOURCE OF TRUTH)
-========================= */
+/* ================= STATE ================= */
 
 const state = {
   node: "start",
   line: 0,
   typing: false,
-  skip: false,
-  buffer: ""
+  skip: false
 };
 
-/* =========================
-   HARD RESET UI (IMPORTANT FIX)
-========================= */
+/* ================= UI RESET ================= */
 
 function resetUI() {
   choicesEl.innerHTML = "";
@@ -49,15 +40,13 @@ function resetUI() {
   nextBtn.style.display = "block";
 }
 
-/* =========================
-   RENDER SYSTEM
-========================= */
+/* ================= RENDER ================= */
 
 function render() {
   const node = story[state.node];
 
   if (!node) {
-    console.error("Story node not found:", state.node);
+    console.error("Missing node:", state.node);
     return;
   }
 
@@ -65,26 +54,18 @@ function render() {
 
   resetUI();
 
-  if (!line) {
-    renderChoices();
-    return;
-  }
+  if (!line) return renderChoices();
 
   nameEl.textContent = line.speaker || "";
-
   setBackground(line.bg);
   setSprites(line.sprite);
-
-  typeText(line.text);
+  type(line.text);
 }
 
-/* =========================
-   TYPEWRITER
-========================= */
+/* ================= TYPE ================= */
 
-function typeText(text) {
+function type(text) {
   state.typing = true;
-  state.buffer = text;
   textEl.textContent = "";
 
   let i = 0;
@@ -99,7 +80,7 @@ function typeText(text) {
 
     if (i < text.length) {
       textEl.textContent += text[i++];
-      setTimeout(tick, 18);
+      setTimeout(tick, 15);
     } else {
       state.typing = false;
     }
@@ -108,9 +89,7 @@ function typeText(text) {
   tick();
 }
 
-/* =========================
-   SPRITES
-========================= */
+/* ================= SPRITES ================= */
 
 function setSprites(active) {
   cassandra.src = sprites.cassandra;
@@ -131,9 +110,7 @@ function setSprites(active) {
   }
 }
 
-/* =========================
-   BACKGROUND
-========================= */
+/* ================= BACKGROUND ================= */
 
 function setBackground(key) {
   if (!key) return;
@@ -142,9 +119,7 @@ function setBackground(key) {
     : "";
 }
 
-/* =========================
-   NEXT LOGIC
-========================= */
+/* ================= NEXT ================= */
 
 function next() {
   if (state.typing) {
@@ -163,9 +138,7 @@ function next() {
   }
 }
 
-/* =========================
-   CHOICES
-========================= */
+/* ================= CHOICES ================= */
 
 function renderChoices() {
   const node = story[state.node];
@@ -173,8 +146,6 @@ function renderChoices() {
   choicesEl.innerHTML = "";
   choicesEl.style.display = "flex";
   nextBtn.style.display = "none";
-
-  if (!node.choices || node.choices.length === 0) return;
 
   node.choices.forEach(choice => {
     const btn = document.createElement("button");
@@ -192,9 +163,7 @@ function renderChoices() {
   });
 }
 
-/* =========================
-   INPUT
-========================= */
+/* ================= INPUT ================= */
 
 nextBtn.addEventListener("click", next);
 
@@ -205,22 +174,16 @@ document.addEventListener("keydown", e => {
   }
 });
 
-/* =========================
-   START (CACHE-SAFE INIT)
-========================= */
+/* ================= START ================= */
 
 window.addEventListener("load", () => {
-  console.log("VN ENGINE LOADED");
-  console.log("Current story node:", story?.start ? "OK" : "MISSING");
-
   cassandra.src = sprites.cassandra;
   apollo.src = sprites.apollo;
 
   setTimeout(() => {
     document.getElementById("loading-screen").style.display = "none";
     document.getElementById("app").classList.remove("hidden");
-
     resetUI();
     render();
-  }, 400);
+  }, 300);
 });
