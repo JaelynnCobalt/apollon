@@ -1,3 +1,5 @@
+import { story } from "./story.js";
+
 /* ========= ELEMENTS ========= */
 
 const bg = document.getElementById("background");
@@ -21,39 +23,6 @@ const sprites = {
   cassandra: "assets/cassandra.png"
 };
 
-/* ========= STORY ========= */
-
-const story = {
-  start: {
-    lines: [
-      {
-        speaker: "Apollo",
-        text: "Welcome, Cassandra. Even the sun pauses to watch you enter my temple.",
-        sprite: "apollo",
-        bg: "temple"
-      },
-      {
-        speaker: "Cassandra",
-        text: "So, is this a ‘chosen one’ thing or a ‘you’re about to die’ thing?",
-        sprite: "cassandra"
-      }
-    ],
-    choices: [
-      { text: "Continue", next: "end" }
-    ]
-  },
-
-  end: {
-    lines: [
-      {
-        speaker: "Narration",
-        text: "End of demo."
-      }
-    ],
-    choices: []
-  }
-};
-
 /* ========= STATE ========= */
 
 let currentNode = "start";
@@ -62,15 +31,16 @@ let typing = false;
 let fullText = "";
 let typingTimeout = null;
 
-/* ========= FUNCTIONS ========= */
+/* ========= CORE FUNCTIONS ========= */
 
 function setBackground(key) {
-  if (!key || !backgrounds[key]) return;
-  bg.style.backgroundImage = `url("${backgrounds[key]}")`;
+  if (!key) return;
+  bg.style.backgroundImage = backgrounds[key]
+    ? `url("${backgrounds[key]}")`
+    : "";
 }
 
 function setSprites(active) {
-  // ALWAYS ensure src is set
   cassandra.src = sprites.cassandra;
   apollo.src = sprites.apollo;
 
@@ -100,7 +70,7 @@ function typeText(text) {
   function tick() {
     if (i < text.length) {
       textEl.textContent += text[i++];
-      typingTimeout = setTimeout(tick, 25);
+      typingTimeout = setTimeout(tick, 20);
     } else {
       typing = false;
     }
@@ -109,16 +79,16 @@ function typeText(text) {
   tick();
 }
 
+/* ========= STORY ENGINE ========= */
+
 function showLine() {
   const node = story[currentNode];
   const line = node.lines[currentLine];
 
-  if (!line) {
-    showChoices();
-    return;
-  }
+  if (!line) return showChoices();
 
   nameEl.textContent = line.speaker || "";
+
   setBackground(line.bg);
   setSprites(line.sprite);
   typeText(line.text);
@@ -129,7 +99,6 @@ function showChoices() {
   nextBtn.style.display = "none";
 
   const node = story[currentNode];
-
   if (!node.choices) return;
 
   node.choices.forEach(choice => {
@@ -150,9 +119,9 @@ function showChoices() {
 
 function nextLine() {
   if (typing) {
-    clearTimeout(typingTimeout);
     textEl.textContent = fullText;
     typing = false;
+    clearTimeout(typingTimeout);
     return;
   }
 
@@ -169,7 +138,7 @@ function nextLine() {
 
 nextBtn.addEventListener("click", nextLine);
 
-document.addEventListener("keydown", (e) => {
+document.addEventListener("keydown", e => {
   if (e.code === "Space" || e.code === "Enter") {
     e.preventDefault();
     nextLine();
@@ -179,14 +148,12 @@ document.addEventListener("keydown", (e) => {
 /* ========= START ========= */
 
 window.addEventListener("load", () => {
-  // preload images so nothing is blank
   cassandra.src = sprites.cassandra;
   apollo.src = sprites.apollo;
 
   setTimeout(() => {
     document.getElementById("loading-screen").style.display = "none";
     document.getElementById("app").classList.remove("hidden");
-
-    showLine(); // 🔥 guarantees first render
+    showLine();
   }, 500);
 });
