@@ -1,209 +1,154 @@
-/* ===========================
-   LOADING SCREEN
-=========================== */
+/* RESET */
 
-window.addEventListener("load", () => {
-    setTimeout(() => {
-        document.getElementById("loading-screen").style.display = "none";
-        document.getElementById("app").classList.remove("hidden");
-        startStory();
-    }, 1000);
-});
-
-/* ===========================
-   ELEMENTS
-=========================== */
-
-const apolloSprite = document.getElementById("apolloSprite");
-const cassandraSprite = document.getElementById("cassandraSprite");
-
-const speakerName = document.getElementById("speakerName");
-const dialogueText = document.getElementById("dialogueText");
-const choicesContainer = document.getElementById("choices");
-const background = document.getElementById("background");
-const uiContainer = document.getElementById("ui");
-
-/* ===========================
-   SUN BUTTON
-=========================== */
-
-const nextSun = document.createElement("img");
-nextSun.id = "nextSun";
-nextSun.src = "assets/sunsprite.png";
-nextSun.alt = "Next";
-nextSun.style.width = "48px";
-nextSun.style.height = "48px";
-nextSun.style.cursor = "pointer";
-nextSun.style.display = "none";
-nextSun.style.margin = "10px auto 0 auto";
-nextSun.style.position = "relative";
-nextSun.style.zIndex = "9999";
-nextSun.style.filter = "drop-shadow(0 0 6px gold)";
-uiContainer.appendChild(nextSun);
-
-/* ===========================
-   TYPEWRITER EFFECT
-=========================== */
-
-let isTyping = false;
-let typeTimeout = null;
-
-function typeWriter(text, element, speed = 28, done = () => {}) {
-    if (typeTimeout) clearTimeout(typeTimeout);
-    element.textContent = "";
-    let i = 0;
-    isTyping = true;
-
-    function tick() {
-        if (i < text.length) {
-            element.textContent += text.charAt(i);
-            i++;
-            typeTimeout = setTimeout(tick, speed);
-        } else {
-            isTyping = false;
-            done();
-        }
-    }
-
-    tick();
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
 }
 
-/* ===========================
-   STORY DATA (TEMPORARY)
-   — replaced in next message
-=========================== */
-
-let story = {
-    start: {
-        lines: [
-            { speaker: "Apollo", text: "TEMPORARY ENGINE TEST LINE.", sprite: "apollo", bg: "temple", mood: "soft" },
-            { speaker: "Cassandra", text: "If you see this, the engine works.", sprite: "cassandra" }
-        ],
-        choices: [
-            { text: "Continue", next: "end" }
-        ]
-    },
-
-    end: {
-        lines: [
-            { speaker: "Narration", text: "Engine test complete.", sprite: "cassandra", bg: "temple" }
-        ],
-        choices: []
-    }
-};
-
-/* ===========================
-   STORY ENGINE
-=========================== */
-
-let currentNode = "start";
-let currentLine = 0;
-
-function startStory() {
-    loadNode("start");
+html, body {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  font-family: "Georgia", serif;
+  background: black;
 }
 
-function loadNode(key) {
-    currentNode = key;
-    currentLine = 0;
-    choicesContainer.innerHTML = "";
-    nextSun.style.display = "block";
-    showLine();
+/* APP VISIBILITY */
+
+.hidden {
+  display: none;
 }
 
-function showLine() {
-    const node = story[currentNode];
-    const line = node.lines[currentLine];
+/* BACKGROUND */
 
-    if (!line) {
-        showChoices();
-        return;
-    }
-
-    // Speaker
-    speakerName.textContent = line.speaker || "";
-
-    // Background
-    if (line.bg) {
-        if (line.bg === "temple") {
-            background.style.backgroundImage = 'url("assets/temple-bg.jpg")';
-        } else if (line.bg === "marble") {
-            background.style.backgroundImage = 'url("assets/marble-bg.jpg")';
-        }
-    }
-
-    // Sprites
-    updateSprites(line.sprite, line.mood);
-
-    // Typewriter
-    typeWriter(line.text, dialogueText);
+#background {
+  position: fixed;
+  inset: 0;
+  background-size: cover;
+  background-position: center;
+  z-index: 1;
 }
 
-function showChoices() {
-    const node = story[currentNode];
-    choicesContainer.innerHTML = "";
-    nextSun.style.display = "none";
+/* SPRITES */
 
-    if (node.choices && node.choices.length > 0) {
-        node.choices.forEach(choice => {
-            const btn = document.createElement("button");
-            btn.classList.add("choice-btn");
-            btn.textContent = choice.text;
-            btn.onclick = () => loadNode(choice.next);
-            choicesContainer.appendChild(btn);
-        });
-    }
+.sprite {
+  position: absolute;
+  bottom: 0;
+  width: 32%;
+  opacity: 0;
+  transition: opacity 0.4s ease, filter 0.3s ease;
+  z-index: 2;
 }
 
-/* ===========================
-   SUN CLICK ADVANCE
-=========================== */
+.sprite.left { left: 3%; }
+.sprite.right { right: 3%; }
 
-nextSun.addEventListener("click", () => {
-    const node = story[currentNode];
+.sprite.active {
+  opacity: 1;
+  filter: drop-shadow(0 0 12px gold);
+}
 
-    if (isTyping) {
-        // Instantly finish the line
-        if (typeTimeout) clearTimeout(typeTimeout);
-        isTyping = false;
-        dialogueText.textContent = node.lines[currentLine].text;
-        return;
-    }
+.sprite.inactive {
+  opacity: 0.25;
+  filter: grayscale(40%);
+}
 
-    currentLine++;
+.sprite.soft { filter: drop-shadow(0 0 12px gold); }
+.sprite.irritated { filter: drop-shadow(0 0 18px orange); }
+.sprite.snap { filter: drop-shadow(0 0 25px white); }
 
-    if (currentLine >= node.lines.length) {
-        showChoices();
-    } else {
-        showLine();
-    }
-});
+/* UI */
 
-/* ===========================
-   SPRITE LOGIC
-=========================== */
+#ui {
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  padding-bottom: 80px; /* space for sun */
+  z-index: 4;
+}
 
-function updateSprites(active, mood) {
-    apolloSprite.className = "sprite left";
-    cassandraSprite.className = "sprite right";
+/* DIALOGUE BOX */
 
-    if (active === "apollo") {
-        apolloSprite.classList.add("active");
-        cassandraSprite.classList.add("inactive");
+#dialogueBox {
+  width: 95%;
+  margin: 0 auto;
+  padding: 20px;
+  background: rgba(255, 255, 255, 0.85);
+  border: 3px solid gold;
+  border-radius: 0 12px 12px 12px;
+  backdrop-filter: blur(6px);
+  box-shadow: 0 0 20px rgba(255, 215, 0, 0.4);
+  position: relative;
+  z-index: 4;
+}
 
-        if (mood === "soft") apolloSprite.classList.add("soft");
-        if (mood === "irritated") apolloSprite.classList.add("irritated");
-        if (mood === "snap") apolloSprite.classList.add("snap");
-    }
+#speakerName {
+  font-weight: bold;
+  font-size: 1.3rem;
+  margin-bottom: 8px;
+  color: #5a3a00;
+}
 
-    else if (active === "cassandra") {
-        cassandraSprite.classList.add("active");
-        apolloSprite.classList.add("inactive");
-    }
+#dialogueText {
+  font-size: 1.15rem;
+  line-height: 1.5rem;
+  min-height: 70px;
+}
 
-    else {
-        apolloSprite.classList.add("inactive");
-        cassandraSprite.classList.add("inactive");
-    }
+/* CHOICES */
+
+#choices {
+  margin-top: 15px;
+  text-align: center;
+}
+
+.choice-btn {
+  display: block;
+  width: 80%;
+  margin: 8px auto;
+  padding: 12px;
+  background: white;
+  border: 2px solid gold;
+  border-radius: 8px;
+  font-size: 1.1rem;
+  cursor: pointer;
+  transition: background 0.2s ease, transform 0.1s ease;
+}
+
+.choice-btn:hover {
+  background: #fff7d1;
+  transform: scale(1.02);
+}
+
+/* SUN BUTTON */
+
+#nextSun {
+  position: absolute;
+  bottom: 15px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 48px;
+  height: 48px;
+  z-index: 9999;
+  cursor: pointer;
+  filter: drop-shadow(0 0 6px gold);
+}
+
+/* LOADING SCREEN */
+
+#loading-screen {
+  position: fixed;
+  inset: 0;
+  background: black;
+  z-index: 99999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+#loading-screen img {
+  width: 120px;
+  height: 120px;
 }
 
