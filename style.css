@@ -33,30 +33,32 @@ html, body {
 /* SPRITES */
 
 .sprite {
-  position: absolute;
-  bottom: 0;
-  width: 32%;
-  opacity: 0;
-  transition: opacity 0.4s ease, filter 0.3s ease;
-  z-index: 2;
+    position: absolute;
+    bottom: 120px; /* Lifts sprites UP so they don't cover the sun */
+    width: 28%;    /* Smaller so they don't overlap the UI */
+    opacity: 0;
+    transition: opacity 0.4s ease, filter 0.3s ease;
+    z-index: 2;
 }
 
 .sprite.left { left: 3%; }
 .sprite.right { right: 3%; }
 
 .sprite.active {
-  opacity: 1;
-  filter: drop-shadow(0 0 12px gold);
+    opacity: 1;
+    filter: drop-shadow(0 0 12px gold);
 }
 
 .sprite.inactive {
-  opacity: 0.25;
-  filter: grayscale(40%);
+    opacity: 0.25;
+    filter: grayscale(40%);
 }
 
+/* Apollo mood states */
 .sprite.soft { filter: drop-shadow(0 0 12px gold); }
 .sprite.irritated { filter: drop-shadow(0 0 18px orange); }
 .sprite.snap { filter: drop-shadow(0 0 25px white); }
+
 
 /* UI */
 
