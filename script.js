@@ -1,6 +1,6 @@
 import { story } from "./story.js";
 
-/* ========= ELEMENTS ========= */
+/* ================= ELEMENTS ================= */
 
 const bg = document.getElementById("background");
 const cassandra = document.getElementById("cassandraSprite");
@@ -11,7 +11,7 @@ const textEl = document.getElementById("dialogueText");
 const choicesEl = document.getElementById("choices");
 const nextBtn = document.getElementById("nextSun");
 
-/* ========= ASSETS ========= */
+/* ================= ASSETS ================= */
 
 const backgrounds = {
   temple: "assets/temple-bg.jpg",
@@ -23,22 +23,60 @@ const sprites = {
   cassandra: "assets/cassandra.png"
 };
 
-/* ========= STATE ========= */
+/* ================= STATE ================= */
 
-let currentNode = "start";
-let currentLine = 0;
-let typing = false;
-let fullText = "";
-let typingTimeout = null;
+let state = {
+  node: "start",
+  line: 0,
+  typing: false,
+  buffer: ""
+};
 
-/* ========= CORE FUNCTIONS ========= */
+/* ================= CORE RENDER ================= */
 
-function setBackground(key) {
-  if (!key) return;
-  bg.style.backgroundImage = backgrounds[key]
-    ? `url("${backgrounds[key]}")`
-    : "";
+function render() {
+  const node = story[state.node];
+  const line = node.lines[state.line];
+
+  // reset UI every render (THIS FIXES YOUR BUGS)
+  choicesEl.innerHTML = "";
+  choicesEl.style.display = "none";
+  nextBtn.style.display = "block";
+
+  if (!line) {
+    renderChoices();
+    return;
+  }
+
+  nameEl.textContent = line.speaker || "";
+
+  setBackground(line.bg);
+  setSprites(line.sprite);
+  type(line.text);
 }
+
+/* ================= TYPEWRITER ================= */
+
+function type(text) {
+  state.typing = true;
+  state.buffer = text;
+  textEl.textContent = "";
+
+  let i = 0;
+
+  function tick() {
+    if (i < text.length) {
+      textEl.textContent += text[i++];
+      setTimeout(tick, 18);
+    } else {
+      state.typing = false;
+    }
+  }
+
+  tick();
+}
+
+/* ================= SPRITES ================= */
 
 function setSprites(active) {
   cassandra.src = sprites.cassandra;
@@ -59,47 +97,41 @@ function setSprites(active) {
   }
 }
 
-function typeText(text) {
-  clearTimeout(typingTimeout);
-  typing = true;
-  fullText = text;
-  textEl.textContent = "";
+/* ================= BACKGROUND ================= */
 
-  let i = 0;
+function setBackground(key) {
+  if (!key) return;
+  bg.style.backgroundImage = backgrounds[key]
+    ? `url("${backgrounds[key]}")`
+    : "";
+}
 
-  function tick() {
-    if (i < text.length) {
-      textEl.textContent += text[i++];
-      typingTimeout = setTimeout(tick, 20);
-    } else {
-      typing = false;
-    }
+/* ================= NEXT ================= */
+
+function next() {
+  if (state.typing) {
+    textEl.textContent = state.buffer;
+    state.typing = false;
+    return;
   }
 
-  tick();
+  state.line++;
+
+  if (state.line >= story[state.node].lines.length) {
+    renderChoices();
+  } else {
+    render();
+  }
 }
 
-/* ========= STORY ENGINE ========= */
+/* ================= CHOICES ================= */
 
-function showLine() {
-  const node = story[currentNode];
-  const line = node.lines[currentLine];
+function renderChoices() {
+  const node = story[state.node];
 
-  if (!line) return showChoices();
-
-  nameEl.textContent = line.speaker || "";
-
-  setBackground(line.bg);
-  setSprites(line.sprite);
-  typeText(line.text);
-}
-
-function showChoices() {
   choicesEl.innerHTML = "";
+  choicesEl.style.display = "flex";
   nextBtn.style.display = "none";
-
-  const node = story[currentNode];
-  if (!node.choices) return;
 
   node.choices.forEach(choice => {
     const btn = document.createElement("button");
@@ -107,45 +139,27 @@ function showChoices() {
     btn.textContent = choice.text;
 
     btn.onclick = () => {
-      currentNode = choice.next;
-      currentLine = 0;
-      nextBtn.style.display = "block";
-      showLine();
+      state.node = choice.next;
+      state.line = 0;
+      render();
     };
 
     choicesEl.appendChild(btn);
   });
 }
 
-function nextLine() {
-  if (typing) {
-    textEl.textContent = fullText;
-    typing = false;
-    clearTimeout(typingTimeout);
-    return;
-  }
+/* ================= EVENTS ================= */
 
-  currentLine++;
-
-  if (currentLine >= story[currentNode].lines.length) {
-    showChoices();
-  } else {
-    showLine();
-  }
-}
-
-/* ========= EVENTS ========= */
-
-nextBtn.addEventListener("click", nextLine);
+nextBtn.addEventListener("click", next);
 
 document.addEventListener("keydown", e => {
   if (e.code === "Space" || e.code === "Enter") {
     e.preventDefault();
-    nextLine();
+    next();
   }
 });
 
-/* ========= START ========= */
+/* ================= START ================= */
 
 window.addEventListener("load", () => {
   cassandra.src = sprites.cassandra;
@@ -154,6 +168,7 @@ window.addEventListener("load", () => {
   setTimeout(() => {
     document.getElementById("loading-screen").style.display = "none";
     document.getElementById("app").classList.remove("hidden");
-    showLine();
+
+    render();
   }, 500);
 });
